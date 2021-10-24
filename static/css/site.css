@@ -1,40 +1,54 @@
 .card {
-    min-width: 18rem;
-    max-width: 18rem;
+	min-width: 18rem;
+	max-width: 18rem;
 }
 
 .card-img-top {
-    width: 100%;
-    height: 15vw;
-    object-fit: cover;
+	width: 100%;
+	height: 15vw;
+	object-fit: cover;
 }
 
 .btn-group {
-    margin-right: 20px;
+	margin-right: 20px;
 }
 
 .badge {
-    margin-left: 10px;
+	margin-left: 10px;
 }
 
 .enrolled-span {
-    text-decoration: underline;
-    background-color: green;
-    color: white;
-    padding: 2%;
-    border-radius: 4px;
+	text-decoration: underline;
+	background-color: green;
+	color: white;
+	padding: 2%;
+	border-radius: 4px;
 }
 
 .notifications {
-    background-color: rgba(240, 46, 46, 0.699);
-    margin: 0 auto;
-    text-align: center;
-    padding: 1%;
-    margin-top: 2%;
-    margin-bottom: 2%;
-    border-radius: 6px;
-    color: white;
-    font-style: italic;
-    text-decoration: underline;
-    box-shadow: 0 5px 10px #cccccc;
+	margin: 0 auto;
+	text-align: center;
+	padding: 1%;
+	margin-top: 2%;
+	margin-bottom: 2%;
+	border-radius: 6px;
+	color: white;
+	font-style: italic;
+	text-decoration: underline;
+	box-shadow: 0 5px 10px #cccccc;
+	display: none;
+}
+
+.error {
+	display: block;
+	background: rgba(231, 14, 14, 0.719);
+}
+.success {
+	display: block;
+	background: rgba(7, 173, 7, 0.774);
+}
+
+.warning {
+	display: block;
+	background: rgba(255, 210, 12, 0.877);
 }

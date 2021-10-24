@@ -3,9 +3,9 @@ module.exports = {
 		port: process.env.PORT || 3000,
 	},
 	production: {},
-	// saltRounds: 9,
-	// jwt: {
-	// 	secret: "rubiksCubesAreObjects",
-	// 	options: { expiresIn: "2d" },
-	// },
+	saltRounds: 9,
+	jwt: {
+		secret: "thereWereThreeChickens",
+		options: { expiresIn: "1d" },
+	},
 };

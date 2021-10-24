@@ -6,12 +6,12 @@ const cookieParser = require("cookie-parser");
 module.exports = (app) => {
 	//TODO: Setup the view engine
 	app.engine(
-		".hbs",
+		"hbs",
 		handlebars({
-			extname: ".hbs",
+			extname: "hbs",
 		})
 	);
-	app.set("view engine", ".hbs");
+	app.set("view engine", "hbs");
 	// Set up the body parser
 	app.use(bodyParser.urlencoded({ extended: true }));
 	// Set up the static files

@@ -5,10 +5,41 @@ const User = require("../models/User");
 
 module.exports = {
 	get: function (req, res) {
-		// TODO:
+		let context = {};
+		res.render("register", context);
 	},
 	post: function (req, res) {
-		// TODO:
+		let username = req.body.username;
+		let pass = req.body.password;
+		let rePass = req.body.repeatPassword;
+
+		let context = { username, pass };
+
+		// TODO: form validations
+
+		bcrypt.genSalt(saltConfig, (err, salt) => {
+			bcrypt.hash(pass, salt, (err, hash) => {
+				// create new user in db
+				new User({
+					username,
+					password: hash,
+				})
+					.save()
+					.then((user) => {
+						res.status(201);
+						console.log("User successfully created");
+						console.log(user);
+						// res.cookie("status", {
+						// 	type: "success",
+						// 	message: "User created! Please login below.",
+						// });
+						res.redirect("/login");
+					})
+					.catch((err) => {
+						console.log(err);
+					});
+			});
+		});
 	},
 };
 

@@ -2,7 +2,7 @@
 
 	<head>
 		<meta charset="UTF-8" />
-		<title>Express Retake Exam January 2019</title>
+		<title>Video-Tutorials</title>
 		<link href="/css/site.css" type="text/css" rel="stylesheet" />
 		<link
 			rel="stylesheet"
@@ -11,5 +11,50 @@
 			crossorigin="anonymous"
 		/>
 	</head>
-	{{{body}}}
+	<body>
+		<div class="container">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a class="navbar-brand">Video Tutorials</a>
+
+				<ul class="navbar-nav ml-auto">
+
+					<li class="nav-item">
+						<a class="nav-link" href="/">Home </a>
+					</li>
+					{{#if loggedIn}}
+						<li class="nav-item">
+							<a class="nav-link" href="/">Welcome,
+								{{username}}</a>
+						</li>
+
+						<li class="nav-item">
+							<a class="nav-link" href="/logout">Logout</a>
+						</li>
+					{{else}}
+						<li class="nav-item">
+							<a class="nav-link" href="/login">Login</a>
+						</li>
+
+						<li class="nav-item">
+							<a class="nav-link" href="/register">Register</a>
+						</li>
+					{{/if}}
+				</ul>
+			</nav>
+
+			<section class="notifications {{notify}}">
+				<p class="notification-message">{{message}}</p>
+			</section>
+
+			{{{body}}}
+
+			<footer class="page-footer font-small">
+				<div class="footer-copyright text-center py-3">© 2019
+					<a href="#/">Express Fundamentals</a>
+				</div>
+			</footer>
+		</div>
+
+	</body>
+
 </html>
