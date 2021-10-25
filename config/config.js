@@ -6,6 +6,6 @@ module.exports = {
 	saltRounds: 9,
 	jwt: {
 		secret: "thereWereThreeChickens",
-		options: { expiresIn: "1d" },
+		options: { expiresIn: "1h" },
 	},
 };

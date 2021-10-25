@@ -2,20 +2,51 @@ const Course = require("../models/Course");
 
 module.exports = {
 	get: function (req, res) {
-		res.render("create-course");
-		// if (res.user) {
-		// 	res.show = "none";
-		// 	res.render("create", { loggedIn: true });
-		// } else {
-		// 	res.cookie("status", {
-		// 		type: "warning",
-		// 		message: "Please login to create a cube",
-		// 	});
-		// 	res.redirect("/");
-		// }
+		let context = {
+			loggedIn: true,
+			username: res.user.username,
+			notify: res.notify,
+		};
+
+		res.render("create-course", context);
 	},
 	post: function (req, res) {
-		// console.log("Creating cube...");
+		console.log("Creating course...");
+
+		let title = req.body.title.trim();
+		let description = req.body.description.trim();
+		let imgUrl = req.body.imgUrl.trim();
+		let isPublic = Boolean(req.body.isPublic);
+		let context = {
+			title,
+			description,
+			imgUrl,
+			isPublic,
+			loggedIn: true,
+		};
+
+		// TODO: form validation
+
+		new Course({
+			title,
+			description,
+			imgUrl,
+			isPublic,
+			creator: res.user.id,
+		})
+			.save()
+			.then((course) => {
+				// console.log(cube);
+				res.cookie("notify", {
+					status: "success",
+					message: "Course created!",
+				});
+				res.redirect("/");
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
 		// let name = req.body.name.trim();
 		// let description = req.body.description.trim();
 		// let imgURL = req.body.imgURL.trim();

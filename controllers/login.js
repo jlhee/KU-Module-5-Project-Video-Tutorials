@@ -5,7 +5,11 @@ const User = require("../models/User");
 
 module.exports = {
 	get: function (req, res) {
-		res.render("login");
+		let context = {
+			loggedIn: false,
+			notify: res.notify,
+		};
+		res.render("login", context);
 		// let context = {};
 		// context.type = res.show;
 		// if (res.show != "none") {
@@ -25,7 +29,11 @@ module.exports = {
 	post: function (req, res) {
 		let username = req.body.username;
 		let pass = req.body.password;
-		let context = { username };
+		let context = {
+			loggedIn: res.user ? true : false,
+			username: res.user ? res.user.username : null,
+			notify: res.notify,
+		};
 
 		User.findOne({ username })
 			.then((user) => {
@@ -49,15 +57,15 @@ module.exports = {
 							// console.log(token);
 							res.cookie("user", token);
 							res.cookie("notify", {
-								type: "success",
+								status: "success",
 								message: "Login successful!",
 							});
 							res.redirect("/");
 						} else {
 							// bad password
 							res.status(401);
-							context.notify = "error";
-							context.message = "Incorrect password";
+							context.notify.status = "error";
+							context.notify.message = "Incorrect password";
 							res.render("login", context);
 						}
 					});

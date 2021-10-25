@@ -2,14 +2,23 @@ const Course = require("../models/Course");
 
 module.exports = function (req, res) {
 	console.log("Details page");
-	let id = req.params.id;
-	let context = {};
 
-	Course.findById(id)
+	let context = {
+		loggedIn: true,
+		username: res.user.username,
+		notify: res.notify,
+	};
+	let user = res.user;
+	let courseID = req.params.id;
+
+	Course.findById(courseID)
 		.then((course) => {
-			// if (user != undefined && user.id == cube.creator) {
-			// 	context.isCurrentUser = true;
-			// }
+			if (user.id == course.creator) {
+				context.isCreator = true;
+			}
+			if (course.users.includes(user.id)) {
+				context.enrolled = true;
+			}
 			context = { ...course.toJSON(), ...context };
 			// console.log(context);
 			res.render("course-details", context);

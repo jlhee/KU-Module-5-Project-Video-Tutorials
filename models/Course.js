@@ -7,6 +7,11 @@ const courseSchema = new mongoose.Schema(
 		imgUrl: { type: String, required: true },
 		isPublic: { type: Boolean, default: false },
 		users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+		creator: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );

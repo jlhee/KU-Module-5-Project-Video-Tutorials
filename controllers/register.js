@@ -5,7 +5,10 @@ const User = require("../models/User");
 
 module.exports = {
 	get: function (req, res) {
-		let context = {};
+		let context = {
+			loggedIn: false,
+			notify: res.notify,
+		};
 		res.render("register", context);
 	},
 	post: function (req, res) {
@@ -29,10 +32,10 @@ module.exports = {
 						res.status(201);
 						console.log("User successfully created");
 						console.log(user);
-						// res.cookie("status", {
-						// 	type: "success",
-						// 	message: "User created! Please login below.",
-						// });
+						res.cookie("notify", {
+							status: "success",
+							message: "User created! Please login below.",
+						});
 						res.redirect("/login");
 					})
 					.catch((err) => {

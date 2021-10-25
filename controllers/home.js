@@ -1,12 +1,11 @@
 const Course = require("../models/Course");
-const { validationResult } = require("express-validator");
 
 module.exports = function (req, res) {
-	let context = { loggedIn: res.loggedIn, notify: res.notify };
-
-	if (res.notify) {
-		context.message = res.message;
-	}
+	let context = {
+		loggedIn: res.user ? true : false,
+		username: res.user ? res.user.username : null,
+		notify: res.notify,
+	};
 
 	Course.find({}).then((courses) => {
 		let publicCourses = courses
@@ -14,28 +13,19 @@ module.exports = function (req, res) {
 				return course.isPublic == true;
 			})
 			.map((course) => (course = course.toJSON()));
+		// console.log(publicCourses);
 		if (res.user) {
-			// TODO: show most recent 3 courses
-			context.courses = publicCourses;
+			// show all public courses in descending order by creation
+			context.courses = publicCourses.sort(
+				(a, b) => b.createdAt - a.createdAt
+			);
 			res.render("user-home", context);
 		} else {
-			// TODO: show top 3 courses
-			context.courses = publicCourses;
+			// show top 3 public courses by enrolled users (descending)
+			context.courses = publicCourses
+				.sort((a, b) => b.users.length - a.users.length)
+				.slice(0, 3);
 			res.render("guest-home", context);
 		}
 	});
-
-	// let context = {};
-	// context.type = res.show;
-	// if (res.show != "none") {
-	// 	context.message = res.message;
-	// }
-	// if (res.user) {
-	// 	context.loggedIn = true;
-	// }
-
-	// Cube.find({}).then((cubes) => {
-	// 	context.cubes = cubes.map((cube) => (cube = cube.toJSON()));
-	// 	res.render("index", context);
-	// });
 };
