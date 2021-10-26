@@ -35,7 +35,7 @@
 	color: white;
 	font-style: italic;
 	font-size: 1.2em;
-	text-decoration: underline;
+	/* text-decoration: underline; */
 	box-shadow: 0 5px 10px #cccccc;
 	display: none;
 }

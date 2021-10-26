@@ -1,102 +1,95 @@
+const { validationResult } = require("express-validator");
 const Course = require("../models/Course");
 
 module.exports = {
 	get: function (req, res) {
-		res.render("edit-course");
-		// let id = req.params.id;
-		// let user = res.user;
-		// let context = {};
-		// context.type = res.show;
-		// if (res.show != "none") {
-		// 	context.message = res.message;
-		// }
-		// // If creator logged in: show edit page. Else: redirect to cube details page.
-		// if (user) {
-		// 	context.loggedIn = true;
+		let context = {
+			loggedIn: true,
+			username: res.user.username,
+			notify: res.notify,
+		};
+		let courseID = req.params.id;
+		let userID = res.user.id;
 
-		// 	Cube.findById(id)
-		// 		.then((cube) => {
-		// 			if (user.id == cube.creator) {
-		// 				context = {
-		// 					...cube.toJSON(),
-		// 					...context,
-		// 				};
-		// 				context[context.difficulty] = "selected";
-		// 				// console.log(context);
-		// 				res.render("editCube", context);
-		// 			} else {
-		// 				// current user is not creator
-		// 				res.cookie("status", {
-		// 					type: "error",
-		// 					message: "Cannot edit cube made by another user",
-		// 				});
-		// 				res.redirect(`/details/${id}`);
-		// 			}
-		// 		})
-		// 		.catch((err) => {
-		// 			console.log(err);
-		// 		});
-		// } else {
-		// 	res.cookie("status", {
-		// 		type: "warning",
-		// 		message: "Please login to edit/delete your cubes",
-		// 	});
-		// 	res.redirect("/");
-		// }
+		Course.findById(courseID).then((course) => {
+			if (userID == course.creator) {
+				context = {
+					...course.toJSON(),
+					...context,
+				};
+				res.render("edit-course", context);
+			} else {
+				res.cookie("notify", {
+					status: "error",
+					message: "Cannot edit course created by another user",
+				});
+				res.redirect(`/details/${courseID}`);
+			}
+		});
 	},
 	post: function (req, res) {
-		// let id = req.params.id;
-		// let name = req.body.name.trim();
-		// let description = req.body.description.trim();
-		// let imgURL = req.body.imgURL.trim();
-		// let difficulty = req.body.difficulty;
-		// let context = { name, description, imgURL, difficulty, loggedIn: true };
-		// context[context.difficulty] = "selected";
-		// // build cube and save to db
-		// Cube.findById(id).then((cube) => {
-		// 	context = { ...cube.toJSON(), ...context };
-		// 	if (name.length < 5 || /[^a-zA-Z0-9 ]/g.test(name)) {
-		// 		context.type = "error";
-		// 		context.message =
-		// 			"Cube name must be at least 5 characters long and only contain letters, numbers, and spaces";
-		// 		return res.render("editCube", context);
-		// 	} else if (
-		// 		description.length < 20 ||
-		// 		/[^a-zA-Z 0-9\.]/g.test(description)
-		// 	) {
-		// 		context.type = "error";
-		// 		context.message =
-		// 			"Cube description must be at least 20 characters long and only contain letters, numbers, and spaces";
-		// 		return res.render("editCube", context);
-		// 	} else if (
-		// 		!(imgURL.startsWith("http://") || imgURL.startsWith("https://"))
-		// 	) {
-		// 		context.type = "error";
-		// 		context.message = "Please enter a valid image URL";
-		// 		return res.render("editCube", context);
-		// 	} else if (isNaN(difficulty) || difficulty < 1 || difficulty > 6) {
-		// 		context.type = "error";
-		// 		context.message =
-		// 			"Please select a valid difficulty from the options provided";
-		// 		return res.render("editCube", context);
-		// 	} else {
-		// 		cube.name = name;
-		// 		cube.description = description;
-		// 		cube.imgURL = imgURL;
-		// 		cube.difficulty = difficulty;
-		// 		// console.log(cube);
-		// 		cube.save()
-		// 			.then((cube) => {
-		// 				res.cookie("status", {
-		// 					type: "success",
-		// 					message: "Cube updated!",
-		// 				});
-		// 				res.redirect(`/details/${id}`);
-		// 			})
-		// 			.catch((err) => {
-		// 				console.log(err);
-		// 			});
-		// 	}
-		// });
+		let courseID = req.params.id;
+		let title = req.body.title.trim();
+		let description = req.body.description.trim();
+		let imgUrl = req.body.imgUrl.trim();
+		let isPublic = Boolean(req.body.isPublic);
+		let context = {
+			_id: courseID,
+			title,
+			description,
+			imgUrl,
+			isPublic,
+			username: res.user.username,
+			loggedIn: true,
+			notify: {},
+		};
+
+		let errors = validationResult(req);
+		// console.log(errors);
+
+		Course.findOne({ title: title })
+			.then((course) => {
+				if (course && course._id != courseID) {
+					context.notify.status = "warning";
+					context.notify.message = `${title} course already exists`;
+					return res.render("edit-course", context);
+				} else if (!errors.isEmpty()) {
+					// validations failed
+					console.log(errors);
+					res.status(400);
+					context.notify.status = "error";
+					context.notify.message =
+						"Invalid fields - please address the following requirements:";
+					context.notify.msgArr = errors.errors;
+					res.render("edit-course", context);
+				} else {
+					// validations passed
+					Course.findById(courseID).then((course) => {
+						context = { ...course.toJSON(), ...context };
+
+						course.title = title;
+						course.description = description;
+						course.imgUrl = imgUrl;
+						course.isPublic = isPublic;
+
+						course
+							.save()
+							.then((course) => {
+								res.status(201);
+								res.cookie("notify", {
+									status: "success",
+									message: "Course updated!",
+								});
+								res.redirect(`/details/${courseID}`);
+							})
+							.catch((err) => {
+								console.log(err);
+							});
+					});
+				}
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	},
 };

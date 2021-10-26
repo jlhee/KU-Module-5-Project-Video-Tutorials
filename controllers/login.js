@@ -10,34 +10,17 @@ module.exports = {
 			notify: res.notify,
 		};
 		res.render("login", context);
-		// let context = {};
-		// context.type = res.show;
-		// if (res.show != "none") {
-		// 	context.message = res.message;
-		// }
-		// if (!res.user) {
-		// 	// check status and context of page
-		// 	res.render("login", context);
-		// } else {
-		// 	res.cookie("status", {
-		// 		type: "warning",
-		// 		message: "Already logged in",
-		// 	});
-		// 	res.redirect("/");
-		// }
 	},
 	post: function (req, res) {
 		let username = req.body.username;
 		let pass = req.body.password;
 		let context = {
-			loggedIn: res.user ? true : false,
-			username: res.user ? res.user.username : null,
-			notify: res.notify,
+			username,
+			notify: {},
 		};
 
 		User.findOne({ username })
 			.then((user) => {
-				console.log(user);
 				if (user !== null) {
 					// valid username
 					bcrypt.compare(pass, user.password, (err, result) => {
@@ -72,8 +55,8 @@ module.exports = {
 				} else {
 					// bad username
 					res.status(401);
-					// context.type = "warning";
-					// context.message = "Username does not exist";
+					context.notify.status = "warning";
+					context.notify.message = "Username does not exist";
 					res.render("login", context);
 				}
 			})

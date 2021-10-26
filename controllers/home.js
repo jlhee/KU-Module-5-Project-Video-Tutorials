@@ -13,7 +13,6 @@ module.exports = function (req, res) {
 				return course.isPublic == true;
 			})
 			.map((course) => (course = course.toJSON()));
-		// console.log(publicCourses);
 		if (res.user) {
 			// show all public courses in descending order by creation
 			context.courses = publicCourses.sort(

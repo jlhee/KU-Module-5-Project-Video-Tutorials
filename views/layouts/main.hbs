@@ -43,7 +43,12 @@
 			</nav>
 
 			<section class="notifications {{notify.status}}">
-				<p class="notification-message">{{notify.message}}</p>
+				<p class="notification-message">{{notify.message}}
+					{{#each notify.msgArr}}
+						<br />-
+						{{msg}}
+					{{/each}}
+				</p>
 			</section>
 
 			{{{body}}}

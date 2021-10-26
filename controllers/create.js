@@ -1,3 +1,4 @@
+const { validationResult } = require("express-validator");
 const Course = require("../models/Course");
 
 module.exports = {
@@ -22,87 +23,51 @@ module.exports = {
 			description,
 			imgUrl,
 			isPublic,
+			username: res.user.username,
 			loggedIn: true,
+			notify: {},
 		};
 
-		// TODO: form validation
+		let errors = validationResult(req);
+		// console.log(errors);
 
-		new Course({
-			title,
-			description,
-			imgUrl,
-			isPublic,
-			creator: res.user.id,
-		})
-			.save()
-			.then((course) => {
-				// console.log(cube);
-				res.cookie("notify", {
-					status: "success",
-					message: "Course created!",
-				});
-				res.redirect("/");
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-
-		// let name = req.body.name.trim();
-		// let description = req.body.description.trim();
-		// let imgURL = req.body.imgURL.trim();
-		// let difficulty = req.body.difficulty;
-		// let context = {
-		// 	name,
-		// 	description,
-		// 	imgURL,
-		// 	difficulty,
-		// 	loggedIn: true,
-		// };
-		// context[context.difficulty] = "selected";
-		// if (name.length < 5 || /[^a-zA-Z0-9 ]/g.test(name)) {
-		// 	context.type = "error";
-		// 	context.message =
-		// 		"Cube name must be at least 5 characters long and only contain letters, numbers, and spaces";
-		// 	return res.render("create", context);
-		// } else if (
-		// 	description.length < 20 ||
-		// 	/[^a-zA-Z 0-9\.]/g.test(description)
-		// ) {
-		// 	context.type = "error";
-		// 	context.message =
-		// 		"Cube description must be at least 20 characters long and only contain letters, numbers, and spaces";
-		// 	return res.render("create", context);
-		// } else if (
-		// 	!(imgURL.startsWith("http://") || imgURL.startsWith("https://"))
-		// ) {
-		// 	context.type = "error";
-		// 	context.message = "Please enter a valid image URL";
-		// 	return res.render("create", context);
-		// } else if (isNaN(difficulty) || difficulty < 1 || difficulty > 6) {
-		// 	context.type = "error";
-		// 	context.message =
-		// 		"Please select a valid difficulty from the options provided";
-		// 	return res.render("create", context);
-		// } else {
-		// 	new Cube({
-		// 		name,
-		// 		description,
-		// 		imgURL,
-		// 		difficulty,
-		// 		creator: res.user.id,
-		// 	})
-		// 		.save()
-		// 		.then((cube) => {
-		// 			// console.log(cube);
-		// 			res.cookie("status", {
-		// 				type: "success",
-		// 				message: "Cube created!",
-		// 			});
-		// 			res.redirect("/");
-		// 		})
-		// 		.catch((err) => {
-		// 			console.log(err);
-		// 		});
-		// }
+		Course.findOne({ title: title }).then((course) => {
+			if (course) {
+				context.notify.status = "warning";
+				context.notify.message = `"${title}" already exists`;
+				res.render("create-course", context);
+			} else if (!errors.isEmpty()) {
+				// validations failed
+				console.log(errors);
+				res.status(400);
+				context.notify.status = "error";
+				context.notify.message =
+					"Invalid fields - please address the following requirements:";
+				context.notify.msgArr = errors.errors;
+				res.render("create-course", context);
+			} else {
+				// validations passed
+				new Course({
+					title,
+					description,
+					imgUrl,
+					isPublic,
+					creator: res.user.id,
+				})
+					.save()
+					.then((course) => {
+						// console.log(course);
+						res.status(201);
+						res.cookie("notify", {
+							status: "success",
+							message: "Course created!",
+						});
+						res.redirect("/");
+					})
+					.catch((err) => {
+						console.log(err);
+					});
+			}
+		});
 	},
 };

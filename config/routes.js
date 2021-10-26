@@ -1,6 +1,7 @@
 // Packages
 const jwt = require("jsonwebtoken");
-const { body } = require("express-validator");
+// const { body } = require("express-validator");
+const { validationResult } = require("express-validator");
 
 // Constants
 const jwtConfig = require("../config/config").jwt;
@@ -14,39 +15,34 @@ const create = require("../controllers/create");
 const edit = require("../controllers/edit");
 const enroll = require("../controllers/enroll");
 const deleteCourse = require("../controllers/delete");
+const validate = require("../controllers/validators");
 
 module.exports = (app) => {
 	/* - - - MIDDLEWARE - - - */
 
 	// check if user exists and verify token
 	app.use((req, res, next) => {
-		let expired;
+		res.notify = req.cookies.notify;
+		res.clearCookie("notify");
 
 		if (req.cookies.user) {
 			// user token exists
 			try {
 				let decodedJWT = jwt.verify(req.cookies.user, jwtConfig.secret);
 				res.user = { id: decodedJWT.id, username: decodedJWT.username };
-				expired = false;
+				next();
 			} catch (err) {
 				// token expired
-				console.log(err);
-				expired = true;
+				console.log("user token expired");
 				res.status(401);
 				res.clearCookie("user");
 				res.cookie("notify", {
 					status: "warning",
 					message: "Session expired - please log in",
 				});
+				res.redirect("/");
 			}
-		}
-
-		res.notify = req.cookies.notify;
-
-		if (expired) {
-			res.redirect("/");
 		} else {
-			res.clearCookie("notify");
 			next();
 		}
 	});
@@ -63,7 +59,6 @@ module.exports = (app) => {
 		],
 		(req, res, next) => {
 			if (!res.user) {
-				res.loggedIn = false;
 				res.cookie("notify", {
 					status: "warning",
 					message: "No user logged in",
@@ -78,7 +73,6 @@ module.exports = (app) => {
 	// redirect logged-in users from unauthorized pages
 	app.use(["/login", "/register"], (req, res, next) => {
 		if (res.user) {
-			res.loggedIn = true;
 			res.cookie("notify", {
 				status: "warning",
 				message: "Already logged in",
@@ -95,7 +89,7 @@ module.exports = (app) => {
 	app.get("/details/:id", details);
 
 	app.get("/register", register.get);
-	app.post("/register", register.post);
+	app.post("/register", validate.registerUser(), register.post);
 
 	app.get("/login", login.get);
 	app.post("/login", login.post);
@@ -110,10 +104,10 @@ module.exports = (app) => {
 	});
 
 	app.get("/create/course", create.get);
-	app.post("/create/course", create.post);
+	app.post("/create/course", validate.course(), create.post);
 
 	app.get("/edit/course/:id", edit.get);
-	app.post("/edit/course/:id", edit.post);
+	app.post("/edit/course/:id", validate.course(), edit.post);
 
 	app.get("/delete/course/:id", deleteCourse);
 
