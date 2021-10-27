@@ -7,21 +7,53 @@ module.exports = function (req, res) {
 		notify: res.notify,
 	};
 
+	let search = req.query.filter;
+
 	Course.find({}).then((courses) => {
-		let publicCourses = courses
-			.filter((course) => {
-				return course.isPublic == true;
-			})
-			.map((course) => (course = course.toJSON()));
 		if (res.user) {
-			// show all public courses in descending order by creation
-			context.courses = publicCourses.sort(
-				(a, b) => b.createdAt - a.createdAt
-			);
+			// user-home: sort by creation (descending)
+			let userCourses = courses
+				.filter((course) => {
+					return course.creator == res.user.id || course.isPublic;
+				})
+				.map((course) => (course = course.toJSON()))
+				.sort((a, b) => b.createdAt - a.createdAt);
+
+			if (search && search.trim()) {
+				// valid search => show filtered courses
+				filteredCourses = userCourses.filter((course) => {
+					return course.title
+						.toLowerCase()
+						.includes(search.trim().toLowerCase());
+				});
+				if (filteredCourses.length) {
+					context.notify = {
+						status: "success",
+						message: `Search results for "${search.trim()}" - ${
+							filteredCourses.length
+						} available course(s)`,
+					};
+				} else {
+					context.notify = {
+						status: "warning",
+						message: `No available courses matching "${search.trim()}"`,
+					};
+				}
+				context.courses = filteredCourses;
+				context.search = search.trim();
+			} else {
+				// no search => show all public/creator courses by creation timestamp
+				context.courses = userCourses;
+			}
+
 			res.render("user-home", context);
 		} else {
-			// show top 3 public courses by enrolled users (descending)
-			context.courses = publicCourses
+			// guest-home: show top 3 public courses by enrolled users (descending)
+			context.courses = courses
+				.filter((course) => {
+					return course.isPublic;
+				})
+				.map((course) => (course = course.toJSON()))
 				.sort((a, b) => b.users.length - a.users.length)
 				.slice(0, 3);
 			res.render("guest-home", context);

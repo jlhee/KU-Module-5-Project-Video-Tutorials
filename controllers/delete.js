@@ -19,7 +19,6 @@ module.exports = function (req, res) {
 							user.save();
 						});
 					}
-					console.log(course.title + " deleted");
 					res.cookie("notify", {
 						status: "success",
 						message: "Course deleted!",

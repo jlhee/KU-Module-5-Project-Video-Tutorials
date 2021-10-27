@@ -20,12 +20,6 @@ module.exports = {
 				"password",
 				"Password may only contain letters and digits"
 			).isAlphanumeric(),
-			// body(
-			// 	"repeatPassword",
-			// 	"Repeat-Password does not match Password"
-			// ).custom((rePass, { req }) => {
-			// 	return rePass == req.body.password;
-			// }),
 		];
 	},
 	course: function (req, res) {

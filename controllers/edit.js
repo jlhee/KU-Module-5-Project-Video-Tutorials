@@ -51,8 +51,8 @@ module.exports = {
 			.then((course) => {
 				if (course && course._id != courseID) {
 					context.notify.status = "warning";
-					context.notify.message = `${title} course already exists`;
-					return res.render("edit-course", context);
+					context.notify.message = `"${title}" already exists`;
+					res.render("edit-course", context);
 				} else if (!errors.isEmpty()) {
 					// validations failed
 					console.log(errors);
@@ -65,13 +65,10 @@ module.exports = {
 				} else {
 					// validations passed
 					Course.findById(courseID).then((course) => {
-						context = { ...course.toJSON(), ...context };
-
 						course.title = title;
 						course.description = description;
 						course.imgUrl = imgUrl;
 						course.isPublic = isPublic;
-
 						course
 							.save()
 							.then((course) => {

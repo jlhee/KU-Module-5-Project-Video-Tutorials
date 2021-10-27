@@ -8,8 +8,8 @@ module.exports = function (req, res) {
 
 	Course.findById(courseID)
 		.then((course) => {
-			console.log(course);
 			if (course.creator == userID) {
+				// error: user is course creator
 				res.status(403);
 				res.cookie("notify", {
 					status: "warning",
@@ -17,6 +17,7 @@ module.exports = function (req, res) {
 				});
 				res.redirect(`/details/${courseID}`);
 			} else if (course.users.includes(userID)) {
+				// error: user is already enrolled
 				res.status(405);
 				res.cookie("notify", {
 					status: "warning",
@@ -24,6 +25,7 @@ module.exports = function (req, res) {
 				});
 				res.redirect(`/details/${courseID}`);
 			} else {
+				// user may enroll
 				course.users.push(userID);
 				course.save();
 				User.findById(userID).then((user) => {
