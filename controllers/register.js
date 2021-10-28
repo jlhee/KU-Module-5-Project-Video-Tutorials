@@ -1,6 +1,5 @@
 let bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
-const validate = require("../controllers/validators");
 const saltConfig = require("../config/config").saltRounds;
 const User = require("../models/User");
 

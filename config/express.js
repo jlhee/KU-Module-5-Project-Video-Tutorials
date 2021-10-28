@@ -2,8 +2,6 @@ const express = require("express");
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-// const url = require("url");
-// const querystring = require("querystring");
 
 module.exports = (app) => {
 	//TODO: Setup the view engine

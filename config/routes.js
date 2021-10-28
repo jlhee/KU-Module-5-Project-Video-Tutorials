@@ -1,7 +1,5 @@
 // Packages
 const jwt = require("jsonwebtoken");
-// const { body } = require("express-validator");
-const { validationResult } = require("express-validator");
 
 // Constants
 const jwtConfig = require("../config/config").jwt;
