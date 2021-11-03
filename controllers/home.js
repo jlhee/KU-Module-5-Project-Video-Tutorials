@@ -20,7 +20,7 @@ module.exports = function (req, res) {
 				.sort((a, b) => b.createdAt - a.createdAt);
 
 			if (search && search.trim()) {
-				// valid search => show filtered courses
+				// user-home with valid search
 				filteredCourses = userCourses.filter((course) => {
 					return course.title
 						.toLowerCase()
@@ -42,7 +42,7 @@ module.exports = function (req, res) {
 				context.courses = filteredCourses;
 				context.search = search.trim();
 			} else {
-				// no search => show all public/creator courses by creation timestamp
+				// user-home: show all courses
 				context.courses = userCourses;
 			}
 

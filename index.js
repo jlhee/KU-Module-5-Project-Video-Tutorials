@@ -4,8 +4,8 @@ const config = require("./config/config")[env];
 const app = require("express")();
 
 require("./config/db")(app);
-require("./config/express")(app); // run express server
-require("./config/routes")(app); // run routes
+require("./config/express")(app);
+require("./config/routes")(app);
 
 app.listen(
 	config.port,

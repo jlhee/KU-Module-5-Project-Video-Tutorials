@@ -26,8 +26,6 @@ module.exports = {
 					bcrypt.compare(pass, user.password, (err, result) => {
 						if (result) {
 							// password accepted
-							res.status(200);
-
 							let userToken = {
 								id: user._id,
 								username: user.username,
@@ -43,24 +41,26 @@ module.exports = {
 								status: "success",
 								message: "Login successful!",
 							});
+							res.status(200);
 							res.redirect("/");
 						} else {
 							// bad password
-							res.status(401);
 							context.notify.status = "error";
 							context.notify.message = "Incorrect password";
+							res.status(401);
 							res.render("login", context);
 						}
 					});
 				} else {
 					// bad username
-					res.status(401);
 					context.notify.status = "warning";
 					context.notify.message = "Username does not exist";
+					res.status(401);
 					res.render("login", context);
 				}
 			})
 			.catch((err) => {
+				res.status(500);
 				console.log(err);
 			});
 	},

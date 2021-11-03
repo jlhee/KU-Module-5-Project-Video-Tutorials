@@ -27,21 +27,22 @@ module.exports = {
 				// username is not unique
 				context.notify.status = "warning";
 				context.notify.message = "Sorry, that username already exists";
+				res.status(409);
 				res.render("register", context);
 			} else if (!errors.isEmpty()) {
 				// validations failed
-				res.status(400);
 				context.notify.status = "error";
 				context.notify.message =
 					"Please address the following username/password requirements:";
 				context.notify.msgArr = errors.errors;
+				res.status(400);
 				res.render("register", context);
 			} else if (pass != rePass) {
 				// repeat password doesn't match
-				res.status(400);
 				context.notify.status = "error";
 				context.notify.message =
 					"Repeat-Password does not match Password";
+				res.status(400);
 				res.render("register", context);
 			} else {
 				// validations passed
@@ -53,17 +54,17 @@ module.exports = {
 						})
 							.save()
 							.then((user) => {
-								res.status(201);
-								console.log("User successfully created");
-								console.log(user);
+								// console.log(user);
 								res.cookie("notify", {
 									status: "success",
 									message:
 										"New user created! Please login below.",
 								});
+								res.status(201);
 								res.redirect("/login");
 							})
 							.catch((err) => {
+								res.status(500);
 								console.log(err);
 							});
 					});

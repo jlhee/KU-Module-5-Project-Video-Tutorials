@@ -31,43 +31,50 @@ module.exports = {
 		let errors = validationResult(req);
 		// console.log(errors);
 
-		Course.findOne({ title: title }).then((course) => {
-			if (course) {
-				context.notify.status = "warning";
-				context.notify.message = `"${title}" already exists`;
-				res.render("create-course", context);
-			} else if (!errors.isEmpty()) {
-				// validations failed
-				console.log(errors);
-				res.status(400);
-				context.notify.status = "error";
-				context.notify.message =
-					"Invalid fields - please address the following requirements:";
-				context.notify.msgArr = errors.errors;
-				res.render("create-course", context);
-			} else {
-				// validations passed
-				new Course({
-					title,
-					description,
-					imgUrl,
-					isPublic,
-					creator: res.user.id,
-				})
-					.save()
-					.then((course) => {
-						// console.log(course);
-						res.status(201);
-						res.cookie("notify", {
-							status: "success",
-							message: "Course created!",
-						});
-						res.redirect("/");
+		Course.findOne({ title: title })
+			.then((course) => {
+				if (course) {
+					context.notify.status = "warning";
+					context.notify.message = `"${title}" already exists`;
+					res.status(400);
+					res.render("create-course", context);
+				} else if (!errors.isEmpty()) {
+					// validations failed
+					// console.log(errors);
+					context.notify.status = "error";
+					context.notify.message =
+						"Invalid fields - please address the following form requirement(s):";
+					context.notify.msgArr = errors.errors;
+					res.status(400);
+					res.render("create-course", context);
+				} else {
+					// validations passed
+					new Course({
+						title,
+						description,
+						imgUrl,
+						isPublic,
+						creator: res.user.id,
 					})
-					.catch((err) => {
-						console.log(err);
-					});
-			}
-		});
+						.save()
+						.then((course) => {
+							// console.log(course);
+							res.cookie("notify", {
+								status: "success",
+								message: "Course created!",
+							});
+							res.status(201);
+							res.redirect("/");
+						})
+						.catch((err) => {
+							res.status(500);
+							console.log(err);
+						});
+				}
+			})
+			.catch((err) => {
+				res.status(500);
+				console.log(err);
+			});
 	},
 };

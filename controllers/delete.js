@@ -16,16 +16,21 @@ module.exports = function (req, res) {
 							user.courses = user.courses.filter((course) => {
 								return course._id != courseID;
 							});
-							user.save();
+							user.save().catch((err) => {
+								res.status(500);
+								console.log(err);
+							});
 						});
 					}
 					res.cookie("notify", {
 						status: "success",
 						message: "Course deleted!",
 					});
+					res.status(200);
 					res.redirect("/");
 				})
 				.catch((err) => {
+					res.status(500);
 					console.log(err);
 				});
 		} else {
@@ -33,6 +38,7 @@ module.exports = function (req, res) {
 				status: "error",
 				message: "Cannot delete course created by another user",
 			});
+			res.status(403);
 			res.redirect(`/details/${courseID}`);
 		}
 	});
